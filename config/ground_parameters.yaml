@@ -1,0 +1,92 @@
+# ==============================================================================
+# Projeto: Brazilian RPS Ground Segment (Segmento Terrestre SPR-BR / SBAS-BR)
+# Arquivo: ground_parameters.yaml
+# Descrição: Configurações declarativas centrais para o segmento de solo,
+#            banco de dados espacial PostGIS, estações canônicas e malhas viárias.
+# ==============================================================================
+
+# 💾 1. Substrato de Persistência Espacial (PostgreSQL 18 + PostGIS 3.6 Nativo)
+database:
+  host: "127.0.0.1"
+  port: 5432
+  database: "rps_ground"
+  user: "rjgamito"
+  password: ""
+  pool_size: 10
+  max_overflow: 20
+  timeout_sec: 30
+  data_dir: "~/.local/share/rps_ground/postgres_data"
+
+# 🛰️ 2. Estações de Monitoramento e Integridade (RIMS) e Controle Master
+stations:
+  # ----------------------------------------------------------------------------
+  # 📍 São José dos Campos / SP - Polo de Engenharia Aeroespacial (ITA / DCTA / INPE)
+  # ----------------------------------------------------------------------------
+  - code: "SJC"
+    name: "Estação de Monitoramento e Engenharia SJC (ITA/DCTA)"
+    station_type: "AEROSPACE_RESEARCH"
+    latitude_deg: -23.210
+    longitude_deg: -45.880
+    altitude_m: 660.0
+    elevation_mask_deg: 5.0
+    coverage_radius_km: 1200.0
+
+  # ----------------------------------------------------------------------------
+  # 📍 Alcântara / MA - RIMS Equatorial (Centro de Lançamento de Alcântara - CLA)
+  # ----------------------------------------------------------------------------
+  - code: "ALC"
+    name: "Estação RIMS Equatorial Alcântara (CLA)"
+    station_type: "RIMS"
+    latitude_deg: -2.316
+    longitude_deg: -44.368
+    altitude_m: 35.0
+    elevation_mask_deg: 5.0
+    coverage_radius_km: 1500.0
+
+  # ----------------------------------------------------------------------------
+  # 📍 Natal / RN - RIMS Leste (Centro de Lançamento da Barreira do Inferno - CLBI)
+  # ----------------------------------------------------------------------------
+  - code: "NAT"
+    name: "Estação RIMS Leste Natal (CLBI)"
+    station_type: "RIMS"
+    latitude_deg: -5.795
+    longitude_deg: -35.209
+    altitude_m: 42.0
+    elevation_mask_deg: 5.0
+    coverage_radius_km: 1500.0
+
+  # ----------------------------------------------------------------------------
+  # 📍 Brasília / DF - Centro de Controle Master (CCM) / RIMS Centro-Oeste
+  # ----------------------------------------------------------------------------
+  - code: "BSB"
+    name: "Centro de Controle de Missão Master Brasília (CCM)"
+    station_type: "MASTER_CONTROL"
+    latitude_deg: -15.794
+    longitude_deg: -47.882
+    altitude_m: 1172.0
+    elevation_mask_deg: 5.0
+    coverage_radius_km: 1800.0
+
+  # ----------------------------------------------------------------------------
+  # 📍 Cachoeira Paulista / SP - RIMS Sudeste (INPE / CPTEC)
+  # ----------------------------------------------------------------------------
+  - code: "CPQ"
+    name: "Estação RIMS Sudeste Cachoeira Paulista (INPE)"
+    station_type: "RIMS"
+    latitude_deg: -22.686
+    longitude_deg: -45.007
+    altitude_m: 565.0
+    elevation_mask_deg: 5.0
+    coverage_radius_km: 1200.0
+
+# 🛣️ 3. Malhas Viárias e Monitoramento de Trajetórias Terrestres
+tracking:
+  sampling_interval_sec: 1.0
+  speed_limit_mps: 60.0             # ~216 km/h
+  reference_corridors:
+    - code: "BR-116"
+      name: "Rodovia Presidente Dutra (Eixo SJC - Cachoeira Paulista)"
+      road_type: "HIGHWAY_FEDERAL"
+    - code: "SP-099"
+      name: "Rodovia dos Tamoios (Eixo SJC - Litoral Norte)"
+      road_type: "HIGHWAY_STATE"

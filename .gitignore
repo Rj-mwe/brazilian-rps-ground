@@ -49,3 +49,5 @@ assurance/reports/
 *.db
 *.sqlite3
 data/
+.postgres_data/
+*.log
