@@ -1,0 +1,71 @@
+name: CI Assurance Triad
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  assurance-suite:
+    name: Assurance Triad & Verification
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_DB: rps_ground
+          POSTGRES_USER: rps_admin
+          POSTGRES_PASSWORD: rps_secure_pass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 2s
+          --health-retries 5
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.13
+
+      - name: Install Dependencies
+        run: uv sync --all-extras
+
+      - name: Ruff Lint Check
+        run: uv run ruff check .
+
+      - name: Golden Hexagon AST Audits
+        run: |
+          uv run python assurance/audits/architecture/audit_domain_isolation.py
+          uv run python assurance/audits/architecture/audit_immutability.py
+
+      - name: Run Test Suite (Unit & Integration)
+        env:
+          RPS_GROUND_DB_HOST: "127.0.0.1"
+          RPS_GROUND_DB_PORT: "5432"
+          RPS_GROUND_DB_NAME: "rps_ground"
+          RPS_GROUND_DB_USER: "rps_admin"
+          RPS_GROUND_DB_PASSWORD: "rps_secure_pass"
+        run: uv run pytest -v
+
+      - name: Run Big Data Ingestion Benchmark (Evals)
+        env:
+          RPS_GROUND_DB_HOST: "127.0.0.1"
+          RPS_GROUND_DB_PORT: "5432"
+          RPS_GROUND_DB_NAME: "rps_ground"
+          RPS_GROUND_DB_USER: "rps_admin"
+          RPS_GROUND_DB_PASSWORD: "rps_secure_pass"
+        run: uv run python assurance/evals/benchmarks/eval_postgis_ingestion_bench.py
+
+      - name: Build MkDocs Documentation
+        run: uv run mkdocs build --strict

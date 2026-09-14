@@ -1,0 +1,79 @@
+site_name: "Brazilian RPS Ground Segment — Documentação de Engenharia"
+site_description: "Sistema de Solo e Estações de Operação para o Sistema de Posicionamento Regional Brasileiro (SPR-BR / SBAS-BR)"
+site_author: "Roger J. G. Gamito"
+repo_url: "https://github.com/Rj-mwe/brazilian-rps-ground"
+repo_name: "Rj-mwe/brazilian-rps-ground"
+
+theme:
+  name: material
+  language: pt-BR
+  palette:
+    # Modo Claro
+    - scheme: default
+      primary: teal
+      accent: amber
+      toggle:
+        icon: material/brightness-7
+        name: Mudar para Modo Escuro
+    # Modo Escuro
+    - scheme: slate
+      primary: teal
+      accent: amber
+      toggle:
+        icon: material/brightness-4
+        name: Mudar para Modo Claro
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+plugins:
+  - search:
+      lang:
+        - pt
+        - en
+      separator: '[\s\-,.:;?+*~]+'
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+
+extra_javascript:
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+nav:
+  - "Início": "index.md"
+  - "🏛️ Arquitetura do Sistema":
+      - "Visão Geral & Hexágono Dourado": "architecture/index.md"
+      - "Os 12 Elementos Canônicos": "architecture/canonical_elements.md"
+      - "Sub-Core de Governança & IEEE 1516": "architecture/governance.md"
+      - "Substratos Técnicos de Plataforma": "architecture/substrates.md"
+  - "💾 Big Data Espacial & PostGIS (US124)":
+      - "Modelo de Dados & Diagram-as-Code": "database/schema.md"
+      - "Armazenamento & NoCOW (BTRFS)": "database/nocow_storage.md"
+      - "Estações Canônicas & Cobertura": "database/stations.md"
+  - "🏛️ Decisões de Arquitetura (ADRs)":
+      - "0001 - Hexágono Dourado no Solo": "adr/0001-golden-hexagon-ground.md"
+      - "0002 - Persistência Espacial PostGIS": "adr/0002-postgis-spatial-persistence.md"
+      - "0003 - Armazenamento NoCOW para Bancos": "adr/0003-nocow-filesystem-storage.md"
+  - "🛡️ Tríade de Garantia & Qualidade":
+      - "Auditorias, Evals e Testes": "quality_safety/assurance_triad.md"
+      - "Contexto Acadêmico (ITA IPBL)": "quality_safety/academic_context.md"

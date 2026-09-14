@@ -51,3 +51,4 @@ assurance/reports/
 data/
 .postgres_data/
 *.log
+site/
