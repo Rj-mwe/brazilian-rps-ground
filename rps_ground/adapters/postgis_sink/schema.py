@@ -3,7 +3,7 @@ PostGIS Relational & Spatial Database Schema (US124).
 Declarative ORM models using SQLAlchemy 2.0 and GeoAlchemy2.
 SRID 4326 (WGS84 / SIRGAS2000).
 """
-from datetime import datetime
+from datetime import datetime, timezone
 
 from geoalchemy2 import Geometry
 from sqlalchemy import (
@@ -33,7 +33,7 @@ class GroundStationModel(Base):
     elevation_mask_deg = Column(Float, nullable=False, default=5.0)
     coverage_radius_km = Column(Float, nullable=False, default=1200.0)
     is_operational = Column(Boolean, nullable=False, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
 
     # 3D Point (lon, lat, alt) in SRID 4326
     location = Column(Geometry(geometry_type="POINTZ", srid=4326, spatial_index=True), nullable=False)

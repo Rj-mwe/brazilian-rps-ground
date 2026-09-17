@@ -15,7 +15,7 @@ database:
   pool_size: 10
   max_overflow: 20
   timeout_sec: 30
-  data_dir: "~/.local/share/rps_ground/postgres_data"
+  data_dir: "/srv/memory/db/rps_ground/data"
 
 # 🛰️ 2. Estações de Monitoramento e Integridade (RIMS) e Controle Master
 stations:

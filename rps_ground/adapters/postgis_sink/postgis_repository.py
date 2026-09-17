@@ -5,8 +5,9 @@ Concrete implementation of Application storage interfaces utilizing PostgreSQL +
 from datetime import datetime
 from typing import List, Optional
 
+from geoalchemy2 import Geography
 from geoalchemy2 import functions as func
-from sqlalchemy import select
+from sqlalchemy import cast, select
 
 from rps_ground.adapters.postgis_sink.mappers import PostgisGeometryMapper, PostgisModelMapper
 from rps_ground.adapters.postgis_sink.schema import (
@@ -199,8 +200,8 @@ class PostgisSpatialRepository(ISpatialStorageInterface):
             # Cast geometry to geography for ST_DWithin in meters
             stmt = select(RoadSegmentModel).where(
                 func.ST_DWithin(
-                    func.cast(RoadSegmentModel.geom, func.Geography),
-                    func.cast(pt_geom, func.Geography),
+                    cast(RoadSegmentModel.geom, Geography),
+                    cast(pt_geom, Geography),
                     distance_meters
                 )
             )
