@@ -8,7 +8,7 @@
 
 set -euo pipefail
 
-PG_DATA_DIR="${RPS_GROUND_DB_DATA_DIR:-/srv/memory/db/rps_ground/data}"
+PG_DATA_DIR="${RPS_GROUND_DB_DATA_DIR:-/srv/memory/db/rps_ground/postgresql/data}"
 PG_PORT="${RPS_GROUND_DB_PORT:-5432}"
 PG_DB="${RPS_GROUND_DB_NAME:-rps_ground}"
 PG_USER="${RPS_GROUND_DB_USER:-$USER}"

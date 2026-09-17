@@ -59,14 +59,19 @@ UUID=0f3dd4e2-9f43-4aef-900c-24058fc8d61f  /srv/memory/db  btrfs  rw,noatime,nod
 ```text
 /srv/memory/db/
 ├── matrix/                     # Outros serviços existentes (conduit, bridges)
-└── rps_ground/                 # [Subdiretório Dedicado do RPS-BR Ground]
-    ├── data/                   # Cluster de dados PostgreSQL (PG_DATA)
-    │   ├── base/
-    │   ├── global/
-    │   ├── pg_wal/             # Write-Ahead Logs
-    │   └── postgresql.conf     # Configurações otimizadas (sockets /tmp e /run/user/1000)
-    └── postgres.log            # Log de execução do PostgreSQL
+└── rps_ground/                 # [Subdiretório de Domínio do RPS-BR Ground]
+    └── postgresql/             # [Motor Primário: Relacional & Espacial]
+        ├── data/               # Cluster de dados PostgreSQL (PG_DATA)
+        │   ├── base/
+        │   ├── global/
+        │   ├── pg_wal/         # Write-Ahead Logs
+        │   └── postgresql.conf # Configurações otimizadas (sockets /tmp e /run/user/1000)
+        └── logs/               # Isolamento de logs de execução do motor
+            └── postgres.log
 ```
+
+> [!TIP]
+> **Padrão de Persistência Poliglota:** A convenção `/srv/memory/db/<projeto>/<motor>/data/` confina todo o footprint do sistema em uma raiz unívoca. Caso motores complementares sejam adicionados (ex: Redis para caching em memória de barreiras temporais IEEE 1516 ou DuckDB para processamento analítico de arquivos RINEX), cada tecnologia habitará seu próprio espaço hermético (`/srv/memory/db/rps_ground/redis/data/`, etc.).
 
 ### 🛰️ Parâmetros de Conexão
 * **Host:** `127.0.0.1` (TCP) ou `/tmp`, `/run/user/1000` (Unix Domain Socket)
@@ -85,13 +90,13 @@ Comandos executados para provisionar a base com NoCOW herdado:
 
 ```bash
 # 1. Criação do diretório dedicado no subvolume NoCOW
-mkdir -p /srv/memory/db/rps_ground/data
+mkdir -p /srv/memory/db/rps_ground/postgresql/{data,logs}
 
 # 2. Inicialização do cluster nativo com locale C.UTF-8 e autenticação local confiável
-initdb -D /srv/memory/db/rps_ground/data --locale=C.UTF-8 -E UTF8 --auth-local=trust --auth-host=trust
+initdb -D /srv/memory/db/rps_ground/postgresql/data --locale=C.UTF-8 -E UTF8 --auth-local=trust --auth-host=trust
 
 # 3. Ajuste de portas e sockets no postgresql.conf
-cat << 'EOF' >> /srv/memory/db/rps_ground/data/postgresql.conf
+cat << 'EOF' >> /srv/memory/db/rps_ground/postgresql/data/postgresql.conf
 listen_addresses = '127.0.0.1,localhost'
 port = 5432
 unix_socket_directories = '/tmp, /run/user/1000'
@@ -101,7 +106,7 @@ maintenance_work_mem = 64MB
 EOF
 
 # 4. Inicialização inicial
-pg_ctl -D /srv/memory/db/rps_ground/data -l /srv/memory/db/rps_ground/postgres.log start
+pg_ctl -D /srv/memory/db/rps_ground/postgresql/data -l /srv/memory/db/rps_ground/postgresql/logs/postgres.log start
 
 # 5. Criação do banco de dados e extensões espaciais
 createdb -h 127.0.0.1 -p 5432 -U rjgamito rps_ground
@@ -119,10 +124,10 @@ After=network.target
 
 [Service]
 Type=forking
-ExecStart=/usr/bin/pg_ctl -D /srv/memory/db/rps_ground/data -l /srv/memory/db/rps_ground/postgres.log start
-ExecStop=/usr/bin/pg_ctl -D /srv/memory/db/rps_ground/data -m fast stop
-ExecReload=/usr/bin/pg_ctl -D /srv/memory/db/rps_ground/data reload
-PIDFile=/srv/memory/db/rps_ground/data/postmaster.pid
+ExecStart=/usr/bin/pg_ctl -D /srv/memory/db/rps_ground/postgresql/data -l /srv/memory/db/rps_ground/postgresql/logs/postgres.log start
+ExecStop=/usr/bin/pg_ctl -D /srv/memory/db/rps_ground/postgresql/data -m fast stop
+ExecReload=/usr/bin/pg_ctl -D /srv/memory/db/rps_ground/postgresql/data reload
+PIDFile=/srv/memory/db/rps_ground/postgresql/data/postmaster.pid
 TimeoutSec=120
 Restart=on-failure
 RestartSec=5
